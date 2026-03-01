@@ -63,6 +63,7 @@ export class StravaClient {
   async getActivityWithRefresh(
     activityId: string,
     athleteId: string,
+    includeAllEfforts?: boolean,
   ): Promise<ReturnType<typeof this.api.getActivity>> {
     const tokens = await this.storage.getTokens(athleteId);
     if (!tokens) {
@@ -84,7 +85,11 @@ export class StravaClient {
       });
     }
 
-    return this.api.getActivity(activityId, validTokens.accessToken);
+    return this.api.getActivity(
+      activityId,
+      validTokens.accessToken,
+      includeAllEfforts,
+    );
   }
 
   /**

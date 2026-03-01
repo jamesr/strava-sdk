@@ -43,8 +43,10 @@ export class RateLimitError extends StravaApiError {
 
     // Calculate retry time based on which limit was hit
     if (rateLimitUsage) {
-      const shortTermExceeded = rateLimitUsage.shortTermUsed >= rateLimitUsage.shortTermLimit;
-      const dailyExceeded = rateLimitUsage.dailyUsed >= rateLimitUsage.dailyLimit;
+      const shortTermExceeded =
+        rateLimitUsage.shortTermUsed >= rateLimitUsage.shortTermLimit;
+      const dailyExceeded =
+        rateLimitUsage.dailyUsed >= rateLimitUsage.dailyLimit;
 
       if (dailyExceeded) {
         // If daily limit exceeded, wait longer

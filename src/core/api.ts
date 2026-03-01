@@ -19,7 +19,13 @@ import type {
   ApiCallInfo,
   RateLimitInfo,
 } from "../types";
-import { createRateLimiter, classifyError, parseRateLimitHeaders, StravaApiError, RateLimitError } from "../utils";
+import {
+  classifyError,
+  createRateLimiter,
+  parseRateLimitHeaders,
+  StravaApiError,
+  RateLimitError,
+} from "../utils";
 
 const STRAVA_API_BASE = "https://www.strava.com/api/v3";
 const STRAVA_TOKEN_URL = "https://www.strava.com/oauth/token";
@@ -60,23 +66,27 @@ export class StravaApi {
   async getActivity(
     activityId: string,
     accessToken: string,
+    includeAllEfforts?: boolean,
   ): Promise<StravaActivity> {
     return this.limiter.schedule(async () => {
       this.logger?.debug("Fetching activity from Strava", { activityId });
       const startTime = Date.now();
 
       try {
-        const response = await fetch(
-          `${STRAVA_API_BASE}/activities/${activityId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
-            },
+        let url = `${STRAVA_API_BASE}/activities/${activityId}`;
+        if (includeAllEfforts) {
+          url = url + "?include_all_efforts=true";
+        }
+        this.logger?.debug(`Fetching url ${url}`);
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
           },
-        );
+        });
 
         const duration = Date.now() - startTime;
+        this.logger?.debug(`Fetch complete ${duration}`);
         await this.recordApiCall(
           `GET /activities/${activityId}`,
           duration,
@@ -121,7 +131,8 @@ export class StravaApi {
       if (params?.before) queryParams.set("before", params.before.toString());
       if (params?.after) queryParams.set("after", params.after.toString());
       if (params?.page) queryParams.set("page", params.page.toString());
-      if (params?.per_page) queryParams.set("per_page", params.per_page.toString());
+      if (params?.per_page)
+        queryParams.set("per_page", params.per_page.toString());
 
       const url = `${STRAVA_API_BASE}/athlete/activities${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
 
@@ -137,14 +148,12 @@ export class StravaApi {
         });
 
         const duration = Date.now() - startTime;
-        await this.recordApiCall(
-          `GET /athlete/activities`,
-          duration,
-          response,
-        );
+        await this.recordApiCall(`GET /athlete/activities`, duration, response);
 
         if (!response.ok) {
-          await this.handleApiError(response, "listAthleteActivities", { params });
+          await this.handleApiError(response, "listAthleteActivities", {
+            params,
+          });
         }
 
         const activities = (await response.json()) as StravaActivity[];
