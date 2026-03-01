@@ -29,6 +29,7 @@ export interface StravaActivity {
   readonly description?: string;
   readonly private: boolean;
   readonly visibility: string;
+  readonly segment_efforts?: readonly [DetailedSegmentEffort],
 }
 
 /**
@@ -84,4 +85,28 @@ export interface StreamData {
   readonly series_type: string;
   readonly original_size: number;
   readonly resolution: string;
+}
+
+/**
+ * Segment effort data
+ */
+
+export interface DetailedSegmentEffort {
+  readonly id: number,
+  readonly name: string,
+  readonly elapsed_time: number,
+  readonly moving_time: number,
+  readonly start_date: string,
+  readonly distance: number,
+  readonly average_watts: number,
+  readonly device_watts: true,
+  readonly segment: SummarySegment,
+  readonly pr_rank?: number,
+  readonly kom_rank?: number,
+  readonly hidden: boolean,
+}
+
+export interface SummarySegment {
+  readonly id: number,
+  readonly name: string,
 }

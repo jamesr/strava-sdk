@@ -60,14 +60,19 @@ export class StravaApi {
   async getActivity(
     activityId: string,
     accessToken: string,
+    includeAllEfforts?: boolean,
   ): Promise<StravaActivity> {
     return this.limiter.schedule(async () => {
       this.logger?.debug("Fetching activity from Strava", { activityId });
       const startTime = Date.now();
 
       try {
+        let url = `${STRAVA_API_BASE}/activities/${activityId}`;
+        if (includeAllEfforts) {
+          url = url + '?include_all_efforts=true'
+        }
         const response = await fetch(
-          `${STRAVA_API_BASE}/activities/${activityId}`,
+          url,
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
