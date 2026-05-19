@@ -18,6 +18,7 @@ import type {
   Logger,
   ApiCallInfo,
   RateLimitInfo,
+  Route,
 } from "../types";
 import {
   classifyError,
@@ -286,6 +287,48 @@ export class StravaApi {
         const duration = Date.now() - startTime;
         await this.recordApiCall(
           `GET /activities/${activityId}/streams`,
+          duration,
+          undefined,
+          error,
+        );
+        throw error;
+      }
+    });
+  }
+
+  /**
+   * Get a route
+   */
+  async getRouteById(accessToken: string, routeId: string): Promise<Route> {
+    return this.limiter.schedule(async () => {
+      this.logger?.debug("Fetching route ", { routeId });
+      const startTime = Date.now();
+
+      try {
+        const response = await fetch(`${STRAVA_API_BASE}/routes/${routeId}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        const duration = Date.now() - startTime;
+        await this.recordApiCall(`GET /routes/${routeId}`, duration, response);
+
+        if (!response.ok) {
+          await this.handleApiError(response, "getRouteById", { routeId });
+        }
+
+        const stats = (await response.json()) as Route;
+        this.logger?.info("Route retrieved successfully", {
+          routeId,
+        });
+
+        return stats;
+      } catch (error) {
+        const duration = Date.now() - startTime;
+        await this.recordApiCall(
+          `GET /routes/${routeId}`,
           duration,
           undefined,
           error,

@@ -3,29 +3,36 @@
  */
 
 /**
- * Authenticated athlete from OAuth response
+ * Summary athlete data
  */
-export interface AuthenticatedAthlete {
-  readonly id: number;
-  readonly username?: string;
-  readonly resource_state: number;
+
+export interface SummaryAthlete {
+  readonly id?: number;
+  readonly resource_state?: number;
   readonly firstname?: string;
   readonly lastname?: string;
-  readonly bio?: string;
+  readonly profile_medium?: string;
+  readonly profile?: string;
   readonly city?: string;
   readonly state?: string;
   readonly country?: string;
   readonly sex?: string;
+  readonly friend?: string;
+  readonly follower?: string;
   readonly premium?: boolean;
+  readonly created_at?: Date;
+  readonly updated_at?: Date;
+}
+
+/**
+ * Authenticated athlete from OAuth response
+ */
+export interface AuthenticatedAthlete extends SummaryAthlete {
+  readonly username?: string;
+  readonly bio?: string;
   readonly summit?: boolean;
-  readonly created_at?: string;
-  readonly updated_at?: string;
   readonly badge_type_id?: number;
   readonly weight?: number;
-  readonly profile_medium?: string;
-  readonly profile?: string;
-  readonly friend?: null;
-  readonly follower?: null;
   readonly measurement_preference?: "feet" | "meters";
 }
 

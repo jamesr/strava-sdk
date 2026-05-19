@@ -277,6 +277,15 @@ interface StravaUpdateData {
 }
 ```
 
+### `getRouteById(routeId)`
+```typescript
+async getRouteById(
+  routeId: string,
+  accessToken: string
+): Promise<Route>
+```
+
+
 ### `refreshAccessToken(refreshToken)`
 
 Manually refresh access token.

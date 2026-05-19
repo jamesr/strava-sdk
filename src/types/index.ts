@@ -4,6 +4,7 @@
 
 export * from "./activity";
 export * from "./athlete";
-export * from "./oauth";
-export * from "./webhook";
 export * from "./config";
+export * from "./oauth";
+export * from "./route";
+export * from "./webhook";
