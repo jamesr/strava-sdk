@@ -4,7 +4,7 @@
  * Provides unified interface to all Strava API functionality.
  */
 
-import type { Route, StravaClientConfig } from "../types";
+import type { Route, StravaClientConfig, SummaryAthlete } from "../types";
 import type { TokenStorage } from "../storage";
 import { StravaOAuth } from "./oauth";
 import { StravaApi } from "./api";
@@ -182,5 +182,32 @@ export class StravaClient {
     }
 
     return this.api.getRouteById(validTokens.accessToken, routeId);
+  }
+
+  /**
+   * Get athlete information
+   */
+  async getAthlete(athleteId: string): Promise<SummaryAthlete> {
+    const tokens = await this.storage.getTokens(athleteId);
+    if (!tokens) {
+      throw new Error(`No tokens found for athlete ${athleteId}`);
+    }
+
+    const validTokens = await this.api.ensureValidToken(
+      tokens.accessToken,
+      tokens.refreshToken,
+      tokens.expiresAt,
+    );
+
+    if (validTokens.wasRefreshed) {
+      await this.storage.saveTokens(athleteId, {
+        ...tokens,
+        accessToken: validTokens.accessToken,
+        refreshToken: validTokens.refreshToken,
+        expiresAt: validTokens.expiresAt,
+      });
+    }
+
+    return this.api.getAthlete(validTokens.accessToken);
   }
 }

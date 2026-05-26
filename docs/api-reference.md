@@ -278,6 +278,7 @@ interface StravaUpdateData {
 ```
 
 ### `getRouteById(routeId)`
+
 ```typescript
 async getRouteById(
   routeId: string,
@@ -285,6 +286,13 @@ async getRouteById(
 ): Promise<Route>
 ```
 
+### `getAthlete(routeId)`
+
+```typescript
+async getAthlete(
+  accessToken: string
+): Promise<SummaryAthlete>
+```
 
 ### `refreshAccessToken(refreshToken)`
 

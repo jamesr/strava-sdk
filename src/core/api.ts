@@ -19,6 +19,7 @@ import type {
   ApiCallInfo,
   RateLimitInfo,
   Route,
+  SummaryAthlete,
 } from "../types";
 import {
   classifyError,
@@ -319,16 +320,56 @@ export class StravaApi {
           await this.handleApiError(response, "getRouteById", { routeId });
         }
 
-        const stats = (await response.json()) as Route;
+        const route = (await response.json()) as Route;
         this.logger?.info("Route retrieved successfully", {
           routeId,
         });
 
-        return stats;
+        return route;
       } catch (error) {
         const duration = Date.now() - startTime;
         await this.recordApiCall(
           `GET /routes/${routeId}`,
+          duration,
+          undefined,
+          error,
+        );
+        throw error;
+      }
+    });
+  }
+
+  /**
+   * Get authenticated athlete
+   */
+  async getAthlete(accessToken: string): Promise<SummaryAthlete> {
+    return this.limiter.schedule(async () => {
+      this.logger?.debug("Fetching athlete");
+      const startTime = Date.now();
+
+      try {
+        const response = await fetch(`${STRAVA_API_BASE}/athlete`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        const duration = Date.now() - startTime;
+        await this.recordApiCall(`GET /athlete`, duration, response);
+
+        if (!response.ok) {
+          await this.handleApiError(response, "getAthlete", {});
+        }
+
+        const athlete = (await response.json()) as SummaryAthlete;
+        this.logger?.info("Athlete retrieved successfully", {});
+
+        return athlete;
+      } catch (error) {
+        const duration = Date.now() - startTime;
+        await this.recordApiCall(
+          `GET /athlete`,
           duration,
           undefined,
           error,
